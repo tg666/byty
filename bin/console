@@ -1,0 +1,27 @@
+#!/usr/bin/env php
+<?php
+
+
+require __DIR__ . '/../vendor/autoload.php';
+
+use App\Database;
+use App\Command\ReadCommand;
+use App\DI;
+use App\DI\Container;
+use SixtyEightPublishers\Environment\Bootstrap\EnvBootstrap;
+use Symfony\Component\Console\Application;
+
+EnvBootstrap::boot([]);
+
+//vytvoříme container a inicializujeme všechny služby v aplikaci.
+// Data k databázi přečteme z .env souboru (viz .env.dist)
+$container = new Container([
+    'db.host' => env("DB_HOST"),
+    'db.user' => env("DB_USER"),
+    'db.dbname' => env("DB_NAME"),
+    'db.password' => env("DB_PASSWORD"),
+    'discordWebhookUrl' => env("DISCORD_WEBHOOK_URL", ""),
+]);
+
+$application = $container->getConsoleApplication();
+exit($application->run());
