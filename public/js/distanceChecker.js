@@ -4,7 +4,7 @@
 function getMapCoordsFromAddress(address, callback) {
     new SMap.Geocoder(address, function (geocoder) {
         if (!geocoder.getResults()[0].results.length) {
-            alert("Unknown address.");
+            console.warn("Unknown address.");
             return;
         }
 
@@ -16,7 +16,7 @@ function countDistance(address, i) {
     new SMap.Geocoder(address, function (geocoder) {
         //alert při chybě adresy
         if (!geocoder.getResults()[0].results.length) {
-            alert("Unknown address");
+            console.warn("Unknown address");
             return;
         }
         //nastavujeme vysledky na souřadnice prvního výsledku

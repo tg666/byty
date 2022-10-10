@@ -2,18 +2,12 @@
 
 namespace App;
 
-use App\Database;
+use App\View\IndexParameters;
 use App\Template\TemplateFactoryInterface;
-use App\View\ApartmentsTemplateParameters;
-use App\View\FilterTemplateParameters;
-use App\View\PaginatorTemplateParameters;
-use Smarty;
-
-
 
 //v této třídě se předávají data do smarty šablon.
 class DataRenderer {
-    private database $db;
+    private Database $db;
     private TemplateFactoryInterface $templateFactory;
 
     public function __construct(Database $db, TemplateFactoryInterface $templateFactory){
@@ -39,7 +33,6 @@ class DataRenderer {
         return $result;
     }
 
-
     public function LoadDataForSmarty() : void {
         $db_c = $this->db->getConnection();
         //filtry se nachází v getu
@@ -52,60 +45,37 @@ class DataRenderer {
         //sestavíme url ve formátu RFC3986. Takhle se vyhneme diakritice.
         $http = http_build_query($filters, "", "", PHP_QUERY_RFC3986);
 
-        //vytvoříme object FilterTemplateParameters - jedná se o šablonu filtrů;
-        $filterParams = new FilterTemplateParameters();
+        //vytvoříme object IndexParmeters - parametry pro šablonu index.tpl;
+        $templateParams = new IndexParameters();
         //řekneme objektu, že filtry jsou $filters
-        $filterParams->filters = $filters;
+        $templateParams->filters = $filters;
         //vytáhneme z výpisu detailů bytů informaci o patrech a předáme ji do templatu jako parametr "stairs"
-        $filterParams->stairs = $this->getDataFromDb("patro", 1);
+        $templateParams->stairs = $this->getDataFromDb("patro", 1);
         //vytáhneme z výpisu bytů informaci o částech a předáme ji do templatu jako parametr "parts"
-        $filterParams->parts = $this->getDataFromDb("part", 0);
+        $templateParams->parts = $this->getDataFromDb("part", 0);
         //vytáhneme z výpisu bytů informaci o stavu bytů a předáme ji do templatu jako parametr "stav"
-        $filterParams->conditions = $this->getDataFromDb("stav", 1);
+        $templateParams->conditions = $this->getDataFromDb("stav", 1);
         //vytáhneme z výpisu bytů informaci o stavu bytů a předáme ji do templatu jako parametr "stav"
-        $filterParams->sizes = $this->getDataFromDb("dispozice", 1);
+        $templateParams->sizes = $this->getDataFromDb("dispozice", 1);
         //vytáhneme z výpisu bytů informaci o tom, zda v bytu mohou být zvířata a předáme ji do templatu jako parametr "animals"
-        $filterParams->animals = $this->getDataFromDb("zvirata", 1);
+        $templateParams->animals = $this->getDataFromDb("zvirata", 1);
         //vytáhneme z výpisu bytů informaci o přítomnosti balkonu a předáme ji do templatu jako parametr "balcony"
-        $filterParams->balcony = $this->getDataFromDb("balkon", 1);
+        $templateParams->balcony = $this->getDataFromDb("balkon", 1);
         //vytáhneme z výpisu bytů informaci o přítomnosti výtahu a předáme ji do templatu jako parametr "elevator"
-        $filterParams->elevator = $this->getDataFromDb("vytah", 1);
+        $templateParams->elevator = $this->getDataFromDb("vytah", 1);
         //vybereme počet detailů a předáme ho do templatu jako parametr "sum"
-        $filterParams->sum = $db_c->query("SELECT count('id') from byty_detaily as count")->fetch_row()[0];
+        $templateParams->sum = $db_c->query("SELECT count('id') from byty_detaily as count")->fetch_row()[0];
         //zjistíme, které řazení je aktivní a předáem ho do templatu jako parametr "order"
-        $filterParams->order = $this->getOrder();
-
-        //vytvoříme další template pro výpis bytů
-        $apartmentsParams = new ApartmentsTemplateParameters();
+        $templateParams->order = $this->getOrder();
         //vytáhneme si filtrované byty a předáme je šabloně jako parametr "apartments"
-        $apartmentsParams->apartments = $this->getFilteredData();
+	    $templateParams->apartments = $this->getFilteredData();
         //předáme do templatu parametr stránky
-        $apartmentsParams->page = $page;
-
-        //vytvoříme nový template pro Paginator
-        $paginatorTemplate = new PaginatorTemplateParameters();
-        //předáme paginatoru stránku
-        $paginatorTemplate->page = $page;
-        //vytáhneme si filtrované byty a předáme je šabloně jako parametr "apartments"
-        $paginatorTemplate->apartments = $this->getFilteredData();
+	    $templateParams->page = $page;
         //předáme paginatoru url
-        $paginatorTemplate->http = $http;
-        //vytvoříme šablony a vyrenderujeme je
-        $this->templateFactory->create('filters.tpl', $filterParams)
-            ->render();
+	    $templateParams->http = $http;
 
-        if (count($this->getFilteredData() )== 0){
-            $this->templateFactory->create('error.tpl')
-                ->render();
-        }
-        else{
-            $this->templateFactory->create('apartment.tpl', $apartmentsParams)
-            ->render();
-
-            $this->templateFactory->create('paginator.tpl', $paginatorTemplate)
-            ->render();
-        }
-
+	    //vytvoříme šablonu a vyrenderujeme ji
+	    $this->templateFactory->create('index.tpl', $templateParams)->render();
     }
 
     public function getFilteredData() : array {
@@ -190,7 +160,7 @@ class DataRenderer {
         $conditions = [];
         //tady nastavíme filtry na "NULL" všude, kde je neuvedeno.
         foreach ($filters as $key => $filter) {
-            if ($filters[$key][0] == "Neuvedeno") {
+            if ($filters[$key][0] === "Neuvedeno") {
                 $filters[$key][0] = "NULL";
             }
         }
@@ -224,7 +194,7 @@ class DataRenderer {
         }
         if (isset($filters['size']) && !empty($filters['size'])) {
             if ($filters["size"] === "Neuvedeno"){
-                $conditions[] = ' OR díspozice is NULL';
+                $conditions[] = ' OR dispozice is NULL';
             }
             $conditions[] = 'dispozice IN (' . implode(', ', array_fill(0, count($filters['size']), '?')) . ')';
             $params = array_merge($params, $filters['size']);

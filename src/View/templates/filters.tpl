@@ -8,7 +8,6 @@
 {else}
     {$maxprice = 55000 }
 {/if}
-<!doctype html>
 <H2 class="text-center">Celkem v databázi: {$sum}</H2>
 <div class="d-flex fixed-filters align-items-stretch flex-shrink-0 bg-white" style="width: 40%;">
 
