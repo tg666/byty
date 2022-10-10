@@ -6,7 +6,7 @@ use App\DataRenderer;
 use App\DI\Container;
 use SixtyEightPublishers\Environment\Bootstrap\EnvBootstrap;
 
-require __DIR__ . '../vendor/autoload.php';
+require __DIR__ . '/../vendor/autoload.php';
 
 EnvBootstrap::boot([]);
 
