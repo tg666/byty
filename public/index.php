@@ -1,25 +1,10 @@
 <?php
 
-use App\Database;
-use App\Write\DataWriter;
-use App\DataRenderer;
-use App\DI\Container;
-use SixtyEightPublishers\Environment\Bootstrap\EnvBootstrap;
+use App\Bootstrap;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-EnvBootstrap::boot([]);
-
-//vytvoříme container a inicializujeme všechny služby v aplikaci.
-// Data k databázi přečteme z .env souboru (viz .env.dist)
-$container = new Container([
-    'db.host' => env("DB_HOST"),
-    'db.user' => env("DB_USER"),
-    'db.dbname' => env("DB_NAME"),
-    'db.password' => env("DB_PASSWORD"),
-    'discordWebhookUrl' => env("DISCORD_WEBHOOK_URL", ""),
-]);
-
+$container = Bootstrap::boot();
 
 // spustíme webovou aplikaci.
 $container->getWebApp()->run();
