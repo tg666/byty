@@ -12,7 +12,7 @@
     {if $item.url|strstr:"realitymix"}
         {$source = "realityMix"}
     {/if}
-    {if $item.part eq null and $source eq "realityMix" }
+    {if $item.part === null and $source eq "realityMix" }
         {$valid = false}
     {else}
         {$valid = true}
@@ -36,7 +36,7 @@
     {else}
         {$balkon = "Neuvedeno"}
     {/if}
-    {if $item.patro eq null}
+    {if $item.patro === null}
         {$item.patro = "Neuvedeno"}
     {/if}
     {if $valid}

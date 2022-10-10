@@ -8,7 +8,6 @@
 {else}
     {$maxprice = 55000 }
 {/if}
-<!doctype html>
 <H2 class="text-center">Celkem v databázi: {$sum}</H2>
 <div class="d-flex fixed-filters align-items-stretch flex-shrink-0 bg-white" style="width: 40%;">
 
@@ -34,7 +33,7 @@
                     </div>
                     <div class="d-flex  p-2 flex-wrap mb-3">
                         {foreach $parts as $f}
-                            {if $f.part neq NULL}
+                            {if $f.part !== NULL}
                             <div class="half">
                                 <input type="checkbox" id="{$f.part}" value="{rawurlencode($f.part)}" {if isset($filters['part']) && in_array($f['part'], $filters['part'])}checked{/if} name="part[]">
                                 <label for="{$f.part}">{$f.part} ({$f.count})</label>
@@ -64,11 +63,11 @@
                     </div>
                     <div class="col-10 mb-1 small">
                         {foreach $conditions as $f}
-                            {if $f.stav eq NULL}
+                            {if $f.stav === NULL}
                                 {$f.stav = "Neuvedeno"}
                             {/if}
                             <div class="half">
-                                <input type="checkbox" id="{$f.stav}" {if $f.stav eq "Neuvedeno"} value="NULL" {else} value="{rawurlencode($f.stav)}" {/if} {if isset($filters['condition']) && in_array($f['stav'], $filters['condition'])}checked{/if} name="condition[]"">
+                                <input type="checkbox" id="{$f.stav}" value="{rawurlencode($f.stav)}" {if isset($filters['condition']) && in_array($f['stav'], $filters['condition'])}checked{/if} name="condition[]"">
                                 <label for="{$f.stav}">{$f.stav} ({$f.count})</label>
                             </div>
                         {/foreach}
@@ -80,7 +79,7 @@
                     </div>
                     <div class="col-10 mb-1 small">
                         {foreach $sizes as $f}
-                            {if $f.dispozice eq NULL}
+                            {if $f.dispozice === NULL}
                                 {$f.dispozice = "Neuvedeno"}
                             {/if}
                             <div class="half">
@@ -96,7 +95,7 @@
                     </div>
                     <div class="col-10 mb-1 small">
                         {foreach $stairs as $f}
-                            {if $f.patro eq NULL}
+                            {if $f.patro === NULL}
                                 {$f.patro = "Neuvedeno"}
                             {/if}
                             <div class="half">
