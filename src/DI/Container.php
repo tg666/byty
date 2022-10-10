@@ -38,8 +38,6 @@ class Container {
         }
 
         return $this->services['web_app'] = new WebApp(
-            $this->getConnection(),
-            $this->getReader(),
             $this->getRenderer(),
         );
     }

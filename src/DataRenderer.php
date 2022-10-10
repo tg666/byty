@@ -158,12 +158,7 @@ class DataRenderer {
         $params = [];
         $binds = [];
         $conditions = [];
-        //tady nastavíme filtry na "NULL" všude, kde je neuvedeno.
-        foreach ($filters as $key => $filter) {
-            if ($filters[$key][0] === "Neuvedeno") {
-                $filters[$key][0] = "NULL";
-            }
-        }
+
         //nastavíme podmínky do databáze pro filtry, pokud jsou nastaveny.
         if (isset($filters['pricemin'])) {
             $conditions[] = 'pricetotal >= ?';
@@ -192,29 +187,87 @@ class DataRenderer {
             $params = array_merge($params, $filters['part']);
             $binds = array_merge($binds, array_fill(0, count($filters['part']), 's'));
         }
+
         if (isset($filters['size']) && !empty($filters['size'])) {
-            if ($filters["size"] === "Neuvedeno"){
-                $conditions[] = ' OR dispozice is NULL';
-            }
-            $conditions[] = 'dispozice IN (' . implode(', ', array_fill(0, count($filters['size']), '?')) . ')';
-            $params = array_merge($params, $filters['size']);
-            $binds = array_merge($binds, array_fill(0, count($filters['size']), 's'));
+			$innerValue = $filters['size'];
+	        $innerConditions = [];
+
+			if (FALSE !== ($nullIndex = array_search("Neuvedeno", $innerValue, TRUE))) {
+				unset($innerValue[$nullIndex]);
+				$innerConditions[] = 'dispozice IS NULL';
+			}
+
+			if (count($innerValue)) {
+				$innerConditions[] = 'dispozice IN (' . implode(', ', array_fill(0, count($innerValue), '?')) . ')';
+				$params = array_merge($params, $innerValue);
+				$binds = array_merge($binds, array_fill(0, count($innerValue), 's'));
+			}
+
+			if (count($innerConditions)) {
+				$conditions[] = '(' . implode(' OR ', $innerConditions) . ')';
+			}
         }
+
         if (isset($filters['condition']) && !empty($filters['condition'])) {
-            $conditions[] = 'stav IN (' . implode(', ', array_fill(0, count($filters['condition']), '?')) . ')';
-            $params = array_merge($params, $filters['condition']);
-            $binds = array_merge($binds, array_fill(0, count($filters['condition']), 's'));
+	        $innerValue = $filters['condition'];
+	        $innerConditions = [];
+
+	        if (FALSE !== ($nullIndex = array_search("Neuvedeno", $innerValue, TRUE))) {
+		        unset($innerValue[$nullIndex]);
+		        $innerConditions[] = 'stav IS NULL';
+	        }
+
+	        if (count($innerValue)) {
+		        $innerConditions[] = 'stav IN (' . implode(', ', array_fill(0, count($innerValue), '?')) . ')';
+		        $params = array_merge($params, $innerValue);
+		        $binds = array_merge($binds, array_fill(0, count($innerValue), 's'));
+	        }
+
+	        if (count($innerConditions)) {
+		        $conditions[] = '(' . implode(' OR ', $innerConditions) . ')';
+	        }
         }
+
         if (isset($filters['stairs']) && !empty($filters['stairs'])) {
-            $conditions[] = 'patro IN (' . implode(', ', array_fill(0, count($filters['stairs']), '?')) . ')';
-            $params = array_merge($params, $filters['stairs']);
-            $binds = array_merge($binds, array_fill(0, count($filters['stairs']), 's'));
+	        $innerValue = $filters['stairs'];
+	        $innerConditions = [];
+
+	        if (FALSE !== ($nullIndex = array_search("Neuvedeno", $innerValue, TRUE))) {
+		        unset($innerValue[$nullIndex]);
+		        $innerConditions[] = 'patro IS NULL';
+	        }
+
+	        if (count($innerValue)) {
+		        $innerConditions[] = 'patro IN (' . implode(', ', array_fill(0, count($innerValue), '?')) . ')';
+		        $params = array_merge($params, $innerValue);
+		        $binds = array_merge($binds, array_fill(0, count($innerValue), 's'));
+	        }
+
+	        if (count($innerConditions)) {
+		        $conditions[] = '(' . implode(' OR ', $innerConditions) . ')';
+	        }
         }
+
         if (isset($filters['elevator']) && !empty($filters['elevator'])) {
-            $conditions[] = 'vytah IN (' . implode(', ', array_fill(0, count($filters['elevator']), '?')) . ')';
-            $params = array_merge($params, $filters["elevator"]);
-            $binds = array_merge($binds, array_fill(0, count($filters['elevator']), 's'));
+	        $innerValue = $filters['elevator'];
+	        $innerConditions = [];
+
+	        if (FALSE !== ($nullIndex = array_search("Neuvedeno", $innerValue, TRUE))) {
+		        unset($innerValue[$nullIndex]);
+		        $innerConditions[] = 'vytah IS NULL';
+	        }
+
+	        if (count($innerValue)) {
+		        $innerConditions[] = 'vytah IN (' . implode(', ', array_fill(0, count($innerValue), '?')) . ')';
+		        $params = array_merge($params, $innerValue);
+		        $binds = array_merge($binds, array_fill(0, count($innerValue), 's'));
+	        }
+
+	        if (count($innerConditions)) {
+		        $conditions[] = '(' . implode(' OR ', $innerConditions) . ')';
+	        }
         }
+
         if (isset($filters['balcony']) && !empty($filters['balcony'])) {
             foreach ($filters["balcony"] as $index=>$balcony){
                 if ($filters["balcony"][$index] === "Ano"){
@@ -224,13 +277,29 @@ class DataRenderer {
                     $filters["balcony"][$index] = 0;
                 }
                 else{
-                    $filters["balcony"][$index] = "NULL";
+                    $filters["balcony"][$index] = "Neuvedeno";
                 }
             }
-            $conditions[] = 'balkon IN (' . implode(', ', array_fill(0, count($filters['balcony']), '?')) . ')';
-            $params = array_merge($params, $filters["balcony"]);
-            $binds = array_merge($binds, array_fill(0, count($filters['balcony']), 's'));
+
+	        $innerValue = $filters['balcony'];
+	        $innerConditions = [];
+
+	        if (FALSE !== ($nullIndex = array_search("Neuvedeno", $innerValue, TRUE))) {
+		        unset($innerValue[$nullIndex]);
+		        $innerConditions[] = 'balkon IS NULL';
+	        }
+
+	        if (count($innerValue)) {
+		        $innerConditions[] = 'balkon IN (' . implode(', ', array_fill(0, count($innerValue), '?')) . ')';
+		        $params = array_merge($params, $innerValue);
+		        $binds = array_merge($binds, array_fill(0, count($innerValue), 's'));
+	        }
+
+	        if (count($innerConditions)) {
+		        $conditions[] = '(' . implode(' OR ', $innerConditions) . ')';
+	        }
         }
+
         return [$conditions, $binds, $params];
     }
 
